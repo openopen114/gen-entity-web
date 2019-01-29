@@ -1,0 +1,21 @@
+ 
+
+.ant-form{
+    padding: 10px 10px;
+
+    .ant-form-item{
+        margin-top: 16px;
+    }
+	label{
+    	font-size: 30px;
+        font-weight: bold;
+        text-align: center;
+        background: #f12711; /* fallback for old browsers */
+        background: -webkit-linear-gradient(right, #f12711, #f5af19);
+        background: linear-gradient(to right, #f12711, #f5af19);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+}
+    
