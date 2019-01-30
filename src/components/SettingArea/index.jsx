@@ -21,8 +21,8 @@ class SettingArea extends Component {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
       if (!err) {
-        console.log("Received values of form: ", values);
-        this.getTableSchemaArray(values.tableSchema);
+        console.log("Received values of form: ", values); 
+        this.props.setSettingConfig(values);
       }
     });
   };
@@ -32,28 +32,7 @@ class SettingArea extends Component {
     return hasError;
   };
 
-  getTableSchemaArray = _tableSchema => {
-    /*
-      [CREATE_USER] varchar(64) NULL ,
-      [LAST_MODIFIED] varchar(64) NULL ,
-      [LAST_MODIFY_USER] varchar(64) NULL ,
-      [TS] varchar(64) NULL ,
-    */
-    console.log(_tableSchema);
-
-    let data = _.replace(_tableSchema, /\[/g, "");
-    data = _.replace(data, /\]/g, "");
-    data = _.replace(data, /\,/g, "");
-    data = _.split(data, "\n");
-    // data = data.map(x => _.trim(x));
-    data = _.filter(data, function(o) {
-      return o !== "";
-    });
-
-    console.log(data);
-
-    return data;
-  };
+ 
 
   render() {
     const {
@@ -64,20 +43,21 @@ class SettingArea extends Component {
     } = this.props.form;
 
     const { hasError } = this.state;
+ 
 
     return (
-      <div>
+      <div className="setting-area">
         <Form layout="vertical" onSubmit={this.handleSubmit}>
           {/* # Table Name */}
-          <Form.Item label="# Table Name">
-            <Form.Item>
+     
+            <Form.Item  label="# Table Name">
               {getFieldDecorator("tableName", {
                 rules: [
                   { required: true, message: "Please input your Table Name!" }
                 ]
               })(<Input placeholder="table name" />)}
             </Form.Item>
-          </Form.Item>
+         
 
           {/* # Table Schema */}
           <Form.Item label="# Table Schema">
@@ -91,6 +71,7 @@ class SettingArea extends Component {
           {/* # Package Name */}
           <Form.Item label="# Package Name">
             {getFieldDecorator("packageName", {
+              initialValue: 'com.yonyou.iuap',
               rules: [
                 { required: true, message: "Please input your Package Name!" }
               ]

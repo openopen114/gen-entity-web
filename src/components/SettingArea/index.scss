@@ -1,13 +1,11 @@
- 
-
-.ant-form{
-    padding: 10px 10px;
+.setting-area{
+    .ant-form{ 
 
     .ant-form-item{
-        margin-top: 16px;
+        margin-top: 20px;
     }
-	label{
-    	font-size: 30px;
+    label{
+        font-size: 32px;
         font-weight: bold;
         text-align: center;
         background: #f12711; /* fallback for old browsers */
@@ -18,4 +16,8 @@
     }
 
 }
-    
+ 
+
+} 
+
+   
