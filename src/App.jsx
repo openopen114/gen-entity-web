@@ -2,16 +2,17 @@ import React, { Component } from "react";
 
 import * as _ from "lodash";
 import * as beautify from "js-beautify";
-import * as XmlBeautify from 'xml-beautify';
-
-import "antd/dist/antd.css";
-import "./App.scss";
+import * as XmlBeautify from "xml-beautify";
 
 import SettingArea from "./components/SettingArea/";
 import AnnotationConfigTable from "./components/AnnotationConfigTable/";
 import HighlightCode from "./components/HighlightCode/";
 
+import "antd/dist/antd.css";
+import "./App.scss";
+
 class App extends Component {
+  //ignore entity colunm
   ignoreColumnName = [
     "CREATE_TIME",
     "CREATE_USER",
@@ -29,12 +30,13 @@ class App extends Component {
       tableName: "",
       tableSchema: [],
       formattedEntity: "",
-      formattedXml:""
+      formattedXml: ""
     };
   }
 
   componentDidMount() {}
 
+  // Set Seeting Config For Setting Comp Data
   setSettingConfig = _data => {
     const packageName = _.toLower(_data.packageName);
     const projectName = _.upperFirst(_.camelCase(_data.projectName));
@@ -73,6 +75,7 @@ class App extends Component {
     this.setState({ packageName, projectName, tableName, tableSchema });
   };
 
+  // Update Annotation Config For Config Table Comp
   updateAnnotationConfig = _tableSchema => {
     this.setState({ tableSchema: _tableSchema }, () => {
       this.genEntity();
@@ -80,6 +83,7 @@ class App extends Component {
     });
   };
 
+  // Generate Entity
   genEntity = () => {
     const { tableSchema, packageName, projectName, tableName } = this.state;
 
@@ -112,7 +116,7 @@ class App extends Component {
 
     `;
 
-    tableSchema.map(item => { 
+    tableSchema.map(item => {
       if (!this.ignoreColumnName.includes(item.columnName)) {
         result += this.getEntityCell(item);
       }
@@ -124,6 +128,7 @@ class App extends Component {
     this.setState({ formattedEntity });
   };
 
+  // Generate Entity Cell
   getEntityCell = _item => {
     let cell = "";
 
@@ -171,13 +176,13 @@ class App extends Component {
       `;
     } else {
       cell += `@Column(name = "${colName}")
-      private String ${colNameCamel};  
+      private ${type} ${colNameCamel};  
 
       public void set${colNameUpperCamel}(${type} ${colNameCamel}) {
         this.${colNameCamel} = ${colNameCamel};
       }
 
-      public String get${colNameUpperCamel}() {
+      public ${type} get${colNameUpperCamel}() {
         return this.${colNameCamel};
       }
 
@@ -206,17 +211,12 @@ class App extends Component {
     return preprocessData;
   };
 
-
-
-
   genXML = () => {
     const { tableSchema, packageName, projectName, tableName } = this.state;
-    
 
     const lowerProjectName = _.toLower(_.camelCase(projectName));
     const upperCamelProjectname = _.upperFirst(_.camelCase(projectName));
     const upperCamelTableName = _.upperFirst(_.camelCase(tableName));
-    
 
     let map = new Map();
 
@@ -224,48 +224,52 @@ class App extends Component {
     map.set("Double", "DECIMAL");
     map.set("Integer", "INTEGER");
 
-
     let xml = "";
-
 
     xml += `<?xml version="1.0" encoding="UTF-8"?>
         <mapper namespace="${packageName}.${lowerProjectName}.dao.${upperCamelTableName}Mapper">
         <resultMap id="BaseResultMap" type="${packageName}.${upperCamelTableName}.entity.MachineD18">
 
-   `
+   `;
 
-   tableSchema.map(item => {
-    if(item.at_Id){
-      xml += `<id column="${item.columnName}" jdbcType="${map.get(item.type)}" property="${_.toLower(_.camelCase(item.columnName))}" /> \n`
-    }else{
-      xml += `<result column="${item.columnName}" jdbcType="${map.get(item.type)}" property="${_.camelCase(item.columnName)}" /> \n`;
-    }
-   })
+    tableSchema.map(item => {
+      if (item.at_Id) {
+        xml += `<id column="${item.columnName}" jdbcType="${map.get(
+          item.type
+        )}" property="${_.toLower(_.camelCase(item.columnName))}" /> \n`;
+      } else {
+        xml += `<result column="${item.columnName}" jdbcType="${map.get(
+          item.type
+        )}" property="${_.camelCase(item.columnName)}" /> \n`;
+      }
+    });
 
-   xml += `
+    xml += `
    </resultMap>
   
 
-  `
+  `;
 
-
-  xml += `
+    xml += `
     <select id="selectAllByPage" resultMap="BaseResultMap">
     SELECT t.* FROM ${tableName} t WHERE 1 =1 and t.dr=0
       <if test="condition != null">
 
-    `
+    `;
 
-  tableSchema.map(item => {
-    xml += `
-      <if test="condition.searchMap.${_.camelCase(item.columnName)}!=null and condition.searchMap.${_.camelCase(item.columnName)}!='' ">
-        and t.${item.columnName} = #{condition.searchMap.${_.camelCase(item.columnName)}}
+    tableSchema.map(item => {
+      xml += `
+      <if test="condition.searchMap.${_.camelCase(
+        item.columnName
+      )}!=null and condition.searchMap.${_.camelCase(item.columnName)}!='' ">
+        and t.${item.columnName} = #{condition.searchMap.${_.camelCase(
+        item.columnName
+      )}}
       </if>
-    `
-  })  
+    `;
+    });
 
-
-  xml += `
+    xml += `
       </if>
         order by ts desc
         <if test="page != null">
@@ -277,19 +281,15 @@ class App extends Component {
         </if>
       </select>
     </mapper>
-  ` 
- 
+  `;
+
     const formattedXml = new XmlBeautify().beautify(xml, {
-            indent: "  ",  //indent pattern like white spaces
-            useSelfClosingElement: true //true:use self-closing element when empty element.
-        });
-   
+      indent: "  ", //indent pattern like white spaces
+      useSelfClosingElement: true //true:use self-closing element when empty element.
+    });
 
-    this.setState({formattedXml})
-
-
-
-  }
+    this.setState({ formattedXml });
+  };
 
   render() {
     const {
@@ -311,7 +311,6 @@ class App extends Component {
 
         <h1 className="result-title">Generate Entity Result</h1>
         <HighlightCode codeStr={formattedEntity} lang="java" />
-
 
         <h1 className="result-title">Generate XML Result</h1>
         <HighlightCode codeStr={formattedXml} lang="xml" />
