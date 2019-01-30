@@ -1,0 +1,27 @@
+@import '~antd/dist/antd.css'; 
+@import url('https://fonts.googleapis.com/css?family=Major+Mono+Display');
+
+.App{
+	background-color: #fafafa;
+	padding:0px 50px;
+
+	.app-title{
+		font-size: 98px;
+		text-align: center;
+		color:#ee53a8;
+		font-family: 'Major Mono Display', monospace;
+	}
+
+	.result-title{
+		margin-top: 132px;
+	    font-weight: bold;
+	    text-align: center;
+	    background: #12c2e9; /* fallback for old browsers */
+	    background: -webkit-linear-gradient(right, #12c2e9, #c471ed, #f64f59);
+	    background: linear-gradient(to right, #12c2e9, #c471ed, #f64f59);
+	    -webkit-background-clip: text;
+	    -webkit-text-fill-color: transparent;
+	}
+}
+
+

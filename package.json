@@ -2,6 +2,7 @@
   "name": "gen_entity_web",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://openopen114.github.io/gen-entity-web/",
   "dependencies": {
     "antd": "^3.13.0",
     "js-beautify": "^1.8.9",
@@ -10,7 +11,8 @@
     "prismjs": "^1.15.0",
     "react": "^16.7.0",
     "react-dom": "^16.7.0",
-    "react-scripts": "2.1.3"
+    "react-scripts": "2.1.3",
+    "xml-beautify": "^1.0.1"
   },
   "scripts": {
     "start": "react-scripts start",

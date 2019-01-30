@@ -2,9 +2,10 @@ import React, { Component } from "react";
 
 import * as _ from "lodash";
 import * as beautify from "js-beautify";
+import * as XmlBeautify from 'xml-beautify';
 
 import "antd/dist/antd.css";
-import "./App.css";
+import "./App.scss";
 
 import SettingArea from "./components/SettingArea/";
 import AnnotationConfigTable from "./components/AnnotationConfigTable/";
@@ -27,7 +28,8 @@ class App extends Component {
       projectName: "",
       tableName: "",
       tableSchema: [],
-      entity: ""
+      formattedEntity: "",
+      formattedXml:""
     };
   }
 
@@ -74,6 +76,7 @@ class App extends Component {
   updateAnnotationConfig = _tableSchema => {
     this.setState({ tableSchema: _tableSchema }, () => {
       this.genEntity();
+      this.genXML();
     });
   };
 
@@ -109,11 +112,7 @@ class App extends Component {
 
     `;
 
-    tableSchema.map(item => {
-      console.log("0000");
-      console.log(item.columnName);
-      console.log(!this.ignoreColumnName.includes(item.columnName));
-      console.log("1111");
+    tableSchema.map(item => { 
       if (!this.ignoreColumnName.includes(item.columnName)) {
         result += this.getEntityCell(item);
       }
@@ -121,8 +120,8 @@ class App extends Component {
 
     result += "} ";
 
-    result = beautify.js_beautify(result);
-    this.setState({ entity: result });
+    const formattedEntity = beautify.js_beautify(result);
+    this.setState({ formattedEntity });
   };
 
   getEntityCell = _item => {
@@ -207,23 +206,115 @@ class App extends Component {
     return preprocessData;
   };
 
+
+
+
+  genXML = () => {
+    const { tableSchema, packageName, projectName, tableName } = this.state;
+    
+
+    const lowerProjectName = _.toLower(_.camelCase(projectName));
+    const upperCamelProjectname = _.upperFirst(_.camelCase(projectName));
+    const upperCamelTableName = _.upperFirst(_.camelCase(tableName));
+    
+
+    let map = new Map();
+
+    map.set("String", "VARCHAR");
+    map.set("Double", "DECIMAL");
+    map.set("Integer", "INTEGER");
+
+
+    let xml = "";
+
+
+    xml += `<?xml version="1.0" encoding="UTF-8"?>
+        <mapper namespace="${packageName}.${lowerProjectName}.dao.${upperCamelTableName}Mapper">
+        <resultMap id="BaseResultMap" type="${packageName}.${upperCamelTableName}.entity.MachineD18">
+
+   `
+
+   tableSchema.map(item => {
+    if(item.at_Id){
+      xml += `<id column="${item.columnName}" jdbcType="${map.get(item.type)}" property="${_.toLower(_.camelCase(item.columnName))}" /> \n`
+    }else{
+      xml += `<result column="${item.columnName}" jdbcType="${map.get(item.type)}" property="${_.camelCase(item.columnName)}" /> \n`;
+    }
+   })
+
+   xml += `
+   </resultMap>
+  
+
+  `
+
+
+  xml += `
+    <select id="selectAllByPage" resultMap="BaseResultMap">
+    SELECT t.* FROM ${tableName} t WHERE 1 =1 and t.dr=0
+      <if test="condition != null">
+
+    `
+
+  tableSchema.map(item => {
+    xml += `
+      <if test="condition.searchMap.${_.camelCase(item.columnName)}!=null and condition.searchMap.${_.camelCase(item.columnName)}!='' ">
+        and t.${item.columnName} = #{condition.searchMap.${_.camelCase(item.columnName)}}
+      </if>
+    `
+  })  
+
+
+  xml += `
+      </if>
+        order by ts desc
+        <if test="page != null">
+          <if test="page.sort!=null">
+            <foreach collection="page.sort" item="item" separator=" ">
+              ,\$\{item.property} \$\{item.direction}
+            </foreach>
+          </if>
+        </if>
+      </select>
+    </mapper>
+  ` 
+ 
+    const formattedXml = new XmlBeautify().beautify(xml, {
+            indent: "  ",  //indent pattern like white spaces
+            useSelfClosingElement: true //true:use self-closing element when empty element.
+        });
+   
+
+    this.setState({formattedXml})
+
+
+
+  }
+
   render() {
     const {
       packageName,
       projectName,
       tableName,
       tableSchema,
-      entity
+      formattedEntity,
+      formattedXml
     } = this.state;
     return (
       <div className="App">
+        <h1 className="app-title">ENTITY & XML GENERATOR</h1>
         <SettingArea setSettingConfig={this.setSettingConfig} />
         <AnnotationConfigTable
           tableSchema={tableSchema}
           updateAnnotationConfig={this.updateAnnotationConfig}
         />
 
-        <HighlightCode codeStr={entity} lang="java" />
+        <h1 className="result-title">Generate Entity Result</h1>
+        <HighlightCode codeStr={formattedEntity} lang="java" />
+
+
+        <h1 className="result-title">Generate XML Result</h1>
+        <HighlightCode codeStr={formattedXml} lang="xml" />
       </div>
     );
   }
