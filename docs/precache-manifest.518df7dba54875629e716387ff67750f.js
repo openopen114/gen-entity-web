@@ -24,7 +24,7 @@ self.__precacheManifest = [
     "url": "/gen-entity-web/static/css/1.5038eb4e.chunk.css"
   },
   {
-    "revision": "be205031598e9ded744416b695df13ee",
+    "revision": "74777509c59a96374165faf44122881b",
     "url": "/gen-entity-web/index.html"
   }
 ];
