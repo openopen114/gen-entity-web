@@ -58,7 +58,7 @@ class App extends Component {
       at_GeneratedValue: false
     };
 
-    for (let i = 0; i < tableSchemaArray.length; i += 3) {
+    for (let i = 0; i < tableSchemaArray.length; i +=2) {
       let obj = {};
       obj.columnName = tableSchemaArray[i];
       obj.type = map.get(_.toUpper(tableSchemaArray[i + 1]).substring(0, 3));
@@ -162,6 +162,8 @@ class App extends Component {
     `;
     } else if (_item.columnName == "TENANT_ID") {
       cell += `
+      
+      @Condition
       @Column(name = "TENANT_ID")
       private String tenantid;
 
@@ -193,20 +195,17 @@ class App extends Component {
   };
 
   formatTableSchemaToArray = _tableSchema => {
-    let preprocessData = _.replace(_tableSchema, /\[/g, ""); //remove [
-    preprocessData = _.replace(preprocessData, /\]/g, ""); //remove ]
-    preprocessData = _.replace(preprocessData, /\,/g, ""); //remove ,
-    preprocessData = _.replace(preprocessData, /\ NOT/g, ""); //remove NOT
-    preprocessData = _.replace(preprocessData, /\ DEFAULT/g, ""); //remove DEFAULT
-    preprocessData = _.replace(preprocessData, /\ "/g, ""); //remove "
-    preprocessData = _.replace(preprocessData, /\ '/g, ""); //remove '
-    preprocessData = _.replace(preprocessData, /\n/g, ""); //remove \n
+    let preprocessData = _.split(_tableSchema, '[');  
+    const patt = new RegExp("\]");
+    preprocessData = _.filter(preprocessData, item  => patt.test(item))
+    preprocessData = _.map(preprocessData, item => _.split(item, ']')[0]);
 
-    preprocessData = _.split(preprocessData, " ");
-
+ 
     preprocessData = _.filter(preprocessData, o => {
       return o !== "" && o !== "\n";
     });
+
+ 
 
     return preprocessData;
   };
