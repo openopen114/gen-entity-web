@@ -58,7 +58,7 @@ class App extends Component {
       at_GeneratedValue: false
     };
 
-    for (let i = 0; i < tableSchemaArray.length; i +=2) {
+    for (let i = 0; i < tableSchemaArray.length; i += 2) {
       let obj = {};
       obj.columnName = tableSchemaArray[i];
       obj.type = map.get(_.toUpper(tableSchemaArray[i + 1]).substring(0, 3));
@@ -195,17 +195,14 @@ class App extends Component {
   };
 
   formatTableSchemaToArray = _tableSchema => {
-    let preprocessData = _.split(_tableSchema, '[');  
-    const patt = new RegExp("\]");
-    preprocessData = _.filter(preprocessData, item  => patt.test(item))
-    preprocessData = _.map(preprocessData, item => _.split(item, ']')[0]);
+    let preprocessData = _.split(_tableSchema, "[");
+    const patt = new RegExp("]");
+    preprocessData = _.filter(preprocessData, item => patt.test(item));
+    preprocessData = _.map(preprocessData, item => _.split(item, "]")[0]);
 
- 
     preprocessData = _.filter(preprocessData, o => {
       return o !== "" && o !== "\n";
     });
-
- 
 
     return preprocessData;
   };
@@ -235,9 +232,11 @@ class App extends Component {
       if (item.at_Id) {
         xml += `<id column="${item.columnName}" jdbcType="${map.get(
           item.type
-        )}" property="${_.toLower(_.camelCase(item.columnName))}" /> \n`;
+        )}" property="${_.camelCase(item.columnName)}" /> \n`;
+      } else if (item.columnName == "TENANT_ID") {
+        xml += `<result column="TENANT_ID" jdbcType="VARCHAR" property="tenantid" />`;
       } else {
-        xml += `<result column="${item.columnName}" jdbcType="${map.get(
+        xml += ` <result column="${item.columnName}" jdbcType="${map.get(
           item.type
         )}" property="${_.camelCase(item.columnName)}" /> \n`;
       }
@@ -257,15 +256,21 @@ class App extends Component {
     `;
 
     tableSchema.map(item => {
-      xml += `
+      if (item.columnName == "TENANT_ID") {
+        xml += `   <if test="condition.searchMap.tenantid!=null and condition.searchMap.tenantid!='' ">
+        and t.TENANT_ID = #{condition.searchMap.tenantid}
+      </if> `;
+      } else {
+        xml += `
       <if test="condition.searchMap.${_.camelCase(
         item.columnName
       )}!=null and condition.searchMap.${_.camelCase(item.columnName)}!='' ">
         and t.${item.columnName} = #{condition.searchMap.${_.camelCase(
-        item.columnName
-      )}}
+          item.columnName
+        )}}
       </if>
     `;
+      }
     });
 
     xml += `
