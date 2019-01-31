@@ -4,8 +4,9 @@
 
 
 
-
 #### Table Schema Example:
+
+create via `SQL Server Management Studio*(SSMS)`
 
 ```sql
 	[ID] [varchar](64) NOT NULL,
