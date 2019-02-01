@@ -63,8 +63,8 @@ class App extends Component {
 
     return (
       <div className="App">
+      
         {/* Github Button */}
-
         <Button ghost icon="github" className="githubBtn">
           <a href="https://github.com/openopen114/gen-entity-web" target="_blank"> Github</a>
         </Button>
