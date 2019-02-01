@@ -3,6 +3,7 @@ import React, { Component } from "react";
 import * as _ from "lodash";
 import * as beautify from "js-beautify";
 import * as XmlBeautify from "xml-beautify";
+import { Button } from 'antd';
 
 import { genEntity, formateConfigParam, genXML } from "./util/generator.js";
 import SettingArea from "./components/SettingArea/";
@@ -62,6 +63,11 @@ class App extends Component {
 
     return (
       <div className="App">
+        {/* Github Button */}
+
+        <Button ghost icon="github" className="githubBtn">
+          <a href="https://github.com/openopen114/gen-entity-web" target="_blank"> Github</a>
+        </Button>
 
         {/* Title */}
         <h1 className="app-title">ENTITY & XML GENERATOR</h1>

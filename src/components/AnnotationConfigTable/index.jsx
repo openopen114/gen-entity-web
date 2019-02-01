@@ -63,10 +63,7 @@ class AnnotationConfigTable extends Component {
 
 
 
-  render() {
-    console.log("this.props");
-    console.log(this.props);
-
+  render() { 
     const {  tableSchema } = this.props;
 
     const columns = [

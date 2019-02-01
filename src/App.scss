@@ -6,10 +6,23 @@
 	padding:0px 50px;
 
 	.app-title{
-		font-size: 98px;
+		font-size: 9vw;
 		text-align: center;
 		color:#ee53a8;
 		font-family: 'Major Mono Display', monospace;
+	}
+
+	.githubBtn{
+		color:#8c8c8c;
+		border-color: #8c8c8c;
+		position: absolute;
+		top:10px;
+		right:16px;
+
+		a{
+			color:#8c8c8c;
+			text-decoration:none;
+		}
 	}
 
 	.result-title{
