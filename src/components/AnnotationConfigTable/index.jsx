@@ -13,7 +13,9 @@ const CheckboxGroup = Checkbox.Group;
 const plainOptions = [
   { label: "@Id", value: "at_Id" },
   { label: "@GeneratedValue", value: "at_GeneratedValue" },
-  { label: "@Condition", value: "at_Condition" }
+  { label: "@Condition", value: "at_Condition" },
+  { label: "@CodingEntity", value: "at_CodingEntity" },
+  { label: "@Reference", value: "at_Reference" },
 ];
 
 class AnnotationConfigTable extends Component {
@@ -35,7 +37,9 @@ class AnnotationConfigTable extends Component {
     const annotation = {
       at_Id: false,
       at_Condition: false,
-      at_GeneratedValue:false
+      at_GeneratedValue:false,
+      at_CodingEntity:false,
+      at_Reference:false
     };
 
     _checkedData.map(item => {

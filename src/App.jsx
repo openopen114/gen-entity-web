@@ -5,7 +5,7 @@ import * as beautify from "js-beautify";
 import * as XmlBeautify from "xml-beautify";
 import { Button } from 'antd';
 
-import { genEntity, formateConfigParam, genXML } from "./util/generator.js";
+import { genEntity, formateConfigParam, genXML, genDao, genService, genEnumService, genController } from "./util/generator.js";
 import SettingArea from "./components/SettingArea/";
 import AnnotationConfigTable from "./components/AnnotationConfigTable/";
 import HighlightCode from "./components/HighlightCode/";
@@ -19,9 +19,14 @@ class App extends Component {
     this.state = {
       packageName: "",
       projectName: "",
+      projectType:'',
       tableName: "",
       tableSchema: [],
       formattedEntity: "",
+      formattedDao: "",
+      formattedServie: "",
+      formattedController: "",
+      formattedEnumServie:"",
       formattedXml: ""
     };
   }
@@ -36,7 +41,9 @@ class App extends Component {
       tableName,
       tableSchema
     } = formateConfigParam(_data);
-    this.setState({ packageName, projectName, tableName, tableSchema });
+
+    const projectType = _data.projectType;
+    this.setState({ packageName, projectName, tableName, tableSchema, projectType });
   };
 
   // Update Annotation Config For Config Table Comp
@@ -44,8 +51,12 @@ class App extends Component {
     this.setState({ tableSchema: _tableSchema }, () => {
       const formattedEntity = genEntity(this.state);
       const formattedXml = genXML(this.state);
+      const formattedDao = genDao(this.state);
+      const formattedServie = genService(this.state);
+      const formattedEnumServie = genEnumService(this.state);
+      const formattedController = genController(this.state);
 
-      this.setState({ formattedEntity, formattedXml });
+      this.setState({ formattedEntity, formattedXml, formattedDao,formattedServie, formattedEnumServie, formattedController });
     });
   };
 
@@ -57,7 +68,11 @@ class App extends Component {
       tableName,
       tableSchema,
       formattedEntity,
-      formattedXml
+      formattedDao,
+      formattedServie,
+      formattedXml,
+      formattedController,
+      formattedEnumServie
     } = this.state;
 
 
@@ -84,6 +99,27 @@ class App extends Component {
         {/* Entity Result */}
         <h1 className="result-title">Generate Entity Result</h1>
         <HighlightCode codeStr={formattedEntity} lang="java" />
+
+
+
+        {/* Dao Result */}
+        <h1 className="result-title">Generate Dao Result</h1>
+        <HighlightCode codeStr={formattedDao} lang="java" />
+
+
+        {/* Service Result */} 
+        <h1 className="result-title">Generate Service Result</h1>
+        <HighlightCode codeStr={formattedServie} lang="java" />
+
+
+        {/* Enum Service Result */} 
+        <h1 className="result-title">Generate Enum Service Result</h1>
+        <HighlightCode codeStr={formattedEnumServie} lang="java" />
+
+
+        {/* EController Result */}
+        <h1 className="result-title">Generate Controller Result</h1>
+        <HighlightCode codeStr={formattedController} lang="java" />
 
         {/* XML Result */}
         <h1 className="result-title">Generate XML Result</h1>
