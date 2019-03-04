@@ -8,15 +8,15 @@ self.__precacheManifest = [
     "url": "/gen-entity-web/static/js/runtime~main.9553a9c3.js"
   },
   {
-    "revision": "76a9d681f1e0e77f01be",
-    "url": "/gen-entity-web/static/js/main.76a9d681.chunk.js"
+    "revision": "1fb243ff7343e7325fd5",
+    "url": "/gen-entity-web/static/js/main.1fb243ff.chunk.js"
   },
   {
     "revision": "f36758297114c0252f71",
     "url": "/gen-entity-web/static/js/1.f3675829.chunk.js"
   },
   {
-    "revision": "76a9d681f1e0e77f01be",
+    "revision": "1fb243ff7343e7325fd5",
     "url": "/gen-entity-web/static/css/main.c8ebdb64.chunk.css"
   },
   {
@@ -24,7 +24,7 @@ self.__precacheManifest = [
     "url": "/gen-entity-web/static/css/1.78da8205.chunk.css"
   },
   {
-    "revision": "7b677679f65cfb446fd6fbcff4b5ca7e",
+    "revision": "5ddf479275d367b556e2a489d45bd58f",
     "url": "/gen-entity-web/index.html"
   }
 ];
