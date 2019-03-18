@@ -21,7 +21,7 @@ class SettingArea extends Component {
   handleSubmit = e => {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
-      if (!err) {  
+      if (!err) {   
         this.props.setSettingConfig(values);
       }
     });
@@ -86,7 +86,7 @@ class SettingArea extends Component {
           {/* # Package Name */}
           <Form.Item label="# Package Name">
             {getFieldDecorator("packageName", {
-              initialValue: 'com.yonyou.iuap',
+              initialValue: 'com.walsin.ytmes.mta',
               rules: [
                 { required: true, message: "Please input your Package Name!" }
               ]

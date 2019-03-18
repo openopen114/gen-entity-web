@@ -27,7 +27,7 @@ export const genController = _state => {
 
 
    result += `
-         package com.yonyou.iuap.${_.toLower(projectName)}.controller;
+         package ${_.toLower(packageName)}.${_.toLower(projectName)}.controller;
 
         import java.util.List;
         import java.util.Map;
@@ -224,7 +224,7 @@ export const genDao = _state => {
 
 
    result+= `
-      package com.yonyou.iuap.${_.toLower(projectName)}.dao;
+      package ${_.toLower(packageName)}.${_.toLower(projectName)}.dao;
       import com.yonyou.iuap.${_.toLower(projectName)}.entity.${_.upperFirst(_.camelCase(projectName))};
       import com.yonyou.iuap.baseservice.persistence.mybatis.mapper.GenericExMapper;
       import com.yonyou.iuap.mybatis.anotation.MyBatisRepository;
@@ -255,7 +255,7 @@ export const genEnumService = _state => {
 
    result += `
 
-   package com.yonyou.iuap.${_.toLower(projectName)}.service;
+   package ${_.toLower(packageName)}.${_.toLower(projectName)}.service;
 
   import com.yonyou.iuap.${_.toLower(projectName)}.entity.${_.upperFirst(_.camelCase(projectName))};
   import java.util.ArrayList;
@@ -359,7 +359,7 @@ export const genService = _state => {
 
 
    result+= `  
-      package com.yonyou.iuap.${_.toLower(projectName)}.service;
+      package ${_.toLower(packageName)}.${_.toLower(projectName)}.service;
 
       import static com.yonyou.iuap.baseservice.intg.support.ServiceFeature.BPM;
       import static com.yonyou.iuap.baseservice.intg.support.ServiceFeature.LOGICAL_DEL;
@@ -484,7 +484,7 @@ export const genEntity = _state => {
 
 
   result += `
-      package com.yonyou.iuap.${_.toLower(projectName)}.entity;
+      package ${_.toLower(packageName)}.${_.toLower(projectName)}.entity;
 
       import java.io.Serializable;
       import java.math.BigDecimal;
