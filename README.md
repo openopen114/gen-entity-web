@@ -6,21 +6,36 @@
 
 #### Table Schema Example:
 
-create via `SQL Server Management Studio(SSMS)`
+```sql
+ [CREATE_TIME] 	 [VARCHAR]  
+ [CREATE_USER] 	 [VARCHAR]  
+ [LAST_MODIFIED] 	 [VARCHAR]  
+ [LAST_MODIFY_USER] 	 [VARCHAR] 
+ [BPM_STATE] 	 [DECIMAL]  
+ [TS] 	 [VARCHAR] 
+ [DR] 	 [DECIMAL]  
+ [TENANT_ID] 	 [VARCHAR]  
+ [ID] 	 [CHAR]  
+ [CODE] 	 [VARCHAR]  
+ [DESCRIPTION] 	 [NVARCHAR]  
+ [BUCKET_NO] 	 [INT]  
+```
+
+
+
+create by 
 
 ```sql
-	[ID] [varchar](64) NOT NULL,
-	[NAME] [varchar](64) NULL,
-	[IS_SON] [decimal](1, 0) NULL,
-	[PARENTID] [varchar](64) NULL,
-	[CREATE_TIME] [varchar](64) NULL,
-	[CREATE_USER] [varchar](64) NULL,
-	[LAST_MODIFIED] [varchar](64) NULL,
-	[LAST_MODIFY_USER] [varchar](64) NULL,
-	[TS] [varchar](64) NULL,
-	[DR] [decimal](11, 0) NULL,
-	[BPM_STATE] [decimal](11, 0) NULL,
-	[TENANT_ID] [varchar](64) NULL,
-	[CODE] [varchar](255) NULL
+SELECT UPPER(' ['+ C.NAME+'] ') AS 'COLUMN_NAME',
+       UPPER(' ['+T.NAME+'] ,') AS 'TYPE'
+FROM SYS.COLUMNS C
+LEFT JOIN
+  (
+	SELECT A.NAME,
+          A.SYSTEM_TYPE_ID
+	FROM SYS.TYPES A
+	WHERE A.NAME <> 'SYSNAME' 
+  )T ON T.SYSTEM_TYPE_ID = C.SYSTEM_TYPE_ID
+WHERE C.OBJECT_ID = OBJECT_ID('YOUR-TABLE-NAME')
 ```
 

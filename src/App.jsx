@@ -53,10 +53,10 @@ class App extends Component {
       const formattedXml = genXML(this.state);
       const formattedDao = genDao(this.state);
       const formattedServie = genService(this.state);
-      const formattedEnumServie = genEnumService(this.state);
+      //const formattedEnumServie = genEnumService(this.state);
       const formattedController = genController(this.state);
 
-      this.setState({ formattedEntity, formattedXml, formattedDao,formattedServie, formattedEnumServie, formattedController });
+      this.setState({ formattedEntity, formattedXml, formattedDao,formattedServie, formattedController });
     });
   };
 
@@ -113,8 +113,11 @@ class App extends Component {
 
 
         {/* Enum Service Result */} 
-        <h1 className="result-title">Generate Enum Service Result</h1>
-        <HighlightCode codeStr={formattedEnumServie} lang="java" />
+        {/*
+          <h1 className="result-title">Generate Enum Service Result</h1>
+          <HighlightCode codeStr={formattedEnumServie} lang="java" />
+        */}
+
 
 
         {/* EController Result */}

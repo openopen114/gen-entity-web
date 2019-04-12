@@ -1,6 +1,7 @@
 import * as _ from "lodash";
 import * as beautify from "js-beautify";
 import * as XmlBeautify from "xml-beautify";
+import * as moment from 'moment'; 
 
 //ignore entity colunm
 export const ignoreColumnName = [
@@ -24,180 +25,301 @@ export const genController = _state => {
 
    const UpperTableName = _.upperFirst(_.camelCase(tableName)); 
    const UpperProjectName = _.upperFirst(_.camelCase(projectName));
+   const timestamp = moment().format('YYYY/MM/DD  HH:mm:ss');
+
+
+
 
 
    result += `
-         package ${_.toLower(packageName)}.${_.toLower(projectName)}.controller;
+ 
+       package ${_.toLower(packageName)}.${_.toLower(projectName)}.controller;
 
-        import java.util.List;
-        import java.util.Map;
+      import java.util.ArrayList;
+      import java.util.Date;
+      import java.util.HashMap;
+      import java.util.List;
+      import java.util.Map;
 
-        import javax.servlet.http.HttpServletRequest;
-        import javax.servlet.http.HttpServletResponse;
+      import javax.servlet.http.HttpServletRequest;
+      import javax.servlet.http.HttpServletResponse;
 
-        import org.slf4j.Logger;
-        import org.slf4j.LoggerFactory;
-        import org.springframework.beans.factory.annotation.Autowired;
-        import org.springframework.data.domain.Page;
-        import org.springframework.data.domain.PageRequest;
-        import org.springframework.stereotype.Controller;
-        import org.springframework.web.bind.annotation.RequestBody;
-        import org.springframework.web.bind.annotation.RequestMapping;
-        import org.springframework.web.bind.annotation.RequestMethod;
-        import org.springframework.web.bind.annotation.ResponseBody;
+      import org.apache.commons.lang3.StringUtils;
+      import org.slf4j.Logger;
+      import org.slf4j.LoggerFactory;
+      import org.springframework.beans.factory.annotation.Autowired;
+      import org.springframework.data.domain.Page;
+      import org.springframework.data.domain.PageRequest;
+      import org.springframework.stereotype.Controller;
+      import org.springframework.web.bind.annotation.RequestBody;
+      import org.springframework.web.bind.annotation.RequestMapping;
+      import org.springframework.web.bind.annotation.RequestMethod;
+      import org.springframework.web.bind.annotation.RequestParam;
+      import org.springframework.web.bind.annotation.ResponseBody;
+      import org.springframework.web.multipart.MultipartFile;
 
-        import com.yonyou.iuap.CSRFToken;
-        import com.yonyou.iuap.${_.toLower(projectName)}.entity.${UpperProjectName};
-        import com.yonyou.iuap.${_.toLower(projectName)}.service.${UpperProjectName}EnumService;
-        import com.yonyou.iuap.${_.toLower(projectName)}.service.${UpperProjectName}Service;
-        import com.yonyou.iuap.base.web.BaseController;
-        import com.yonyou.iuap.baseservice.statistics.service.StatCommonService;
-        import com.yonyou.iuap.mvc.constants.RequestStatusEnum;
-        import com.yonyou.iuap.mvc.type.SearchParams;
+      import com.yonyou.iuap.CSRFToken;
+      import ${_.toLower(packageName)}.${_.toLower(projectName)}.entity.${UpperProjectName}; 
+      import ${_.toLower(packageName)}.${_.toLower(projectName)}.service.${UpperProjectName}Service;
+      import com.yonyou.iuap.base.web.BaseController;
+      import com.yonyou.iuap.baseservice.statistics.service.StatCommonService;
+      import com.yonyou.iuap.common.utils.ExcelExportImportor;
+      import com.yonyou.iuap.context.InvocationInfoProxy;
+      import com.yonyou.iuap.mvc.constants.RequestStatusEnum;
+      import com.yonyou.iuap.mvc.type.SearchParams;
+      import com.yonyou.iuap.i18n.MessageSourceUtil;
+      import com.yonyou.iuap.i18n.MethodUtils;
 
+      import cn.hutool.core.date.DateUtil;
+      import jline.internal.Log;
+
+      /**
+       * 說明：${UpperProjectName} 基礎Controller——提供數據增、刪、改、查、導入導出等rest接口
+       * 
+       * @date ${timestamp}
+       */
+      @Controller
+      @RequestMapping(value = "/${_.toLower(projectName)}")
+      public class ${UpperProjectName}Controller extends BaseController {
+        private Logger logger = LoggerFactory.getLogger(${UpperProjectName}Controller.class);
+        //多語常量
+        private static final String KEY1 = "ja.all.con1.0001";
+          private static final String MSG1 = "查詢數據異常！";
+          private static final String KEY2 = "ja.all.con1.0002";
+          private static final String MSG2 = "新增數據異常！";
+          private static final String KEY3 = "ja.all.con1.0003";
+          private static final String MSG3 = "修改數據異常！";
+          private static final String KEY4 = "ja.all.con1.0004";
+          private static final String MSG4 = "刪除數據異常！";
+          private static final String KEY5 = "ja.all.con1.0005";
+          private static final String MSG5 = "Excel模板下載失敗！";
+          private static final String KEY6 = "ja.all.con1.0006";
+          private static final String MSG6 = "Excel模板下載成功！";
+          private static final String KEY7 = "ja.all.con1.0007";
+          private static final String MSG7 = "導入文件格式異常！";
+          private static final String KEY8 = "ja.all.con1.0008";
+          private static final String MSG8 = "導入數據異常！";
+          private static final String KEY9 = "ja.all.con1.0009";
+          private static final String MSG9 = "Excel導入失敗！";
+          private static final String KEY10 = "ja.all.con1.0010";
+          private static final String MSG10 = "Excel導入成功！";
+          private static final String NAME = "name";
+          private static final String KEY = "ja.all.con.00001";
+          private static final String MESSAGE = "名稱不能為空！";
+          
+        
+        private ${UpperProjectName}Service ${_.camelCase(projectName)}Service;
+
+        @Autowired
+        public void set${UpperProjectName}Service(${UpperProjectName}Service ${_.camelCase(projectName)}Service) {
+          this.${_.camelCase(projectName)}Service = ${_.camelCase(projectName)}Service;
+        }
+        
+        @Autowired
+        private StatCommonService statCommonService;
+        
+        private static final String MODELCODE = ${UpperProjectName}.class.getSimpleName();
+        private static final String DATEFORMAT = "yyyy-MM-dd HH:mm:ss";
+        
         /**
-         * 说明：${UpperProjectName} 基础Controller——提供数据增、删、改、查、导入导出等rest接口
-         * 
-         * @date YYYY-MM-DD HH:mm:ss
+         * 批量新增
+         * @param listData
+         * @return
          */
-        @Controller
-        @RequestMapping(value = "/${_.toLower(projectName)}")
-        public class ${UpperProjectName}Controller extends BaseController {
-          private Logger logger = LoggerFactory.getLogger(${UpperProjectName}Controller.class);
-
-          private ${UpperProjectName}Service ${_.camelCase(projectName)}Service;
-
-          @Autowired
-          public void set${UpperProjectName}Service(${UpperProjectName}Service ${_.camelCase(projectName)}Service) {
-            this.${_.camelCase(projectName)}Service = ${_.camelCase(projectName)}Service;
+        @CSRFToken
+        @RequestMapping(value = "/saveMultiple", method = RequestMethod.POST)
+        @ResponseBody
+        public Object saveMultiple(@RequestBody List<${UpperProjectName}> listData) {
+          try {
+            /*
+            for (${UpperProjectName} model : listData) { 
+                    // 國際化 當前語種 
+                    String localeSerial= InvocationInfoProxy.getParameter("locale_serial");
+                    String loacleName = MethodUtils.getDataBySerial(model, NAME,localeSerial);
+                    if (StringUtils.isBlank(loacleName)) {
+                      return this.buildError("msg", MessageSourceUtil.getMessage(KEY, MESSAGE), RequestStatusEnum.FAIL_FIELD);
+                    }
+                    // 國際化 驗證默認語種 
+                    String defaultSerial= InvocationInfoProxy.getParameter("default_serial");
+                    String defaultName = MethodUtils.getDataBySerial(model, NAME,defaultSerial);
+                    if (StringUtils.isBlank(defaultName)) {
+                      return this.buildError("msg", MessageSourceUtil.getMessage(KEY, MESSAGE), RequestStatusEnum.FAIL_FIELD);
+                    }
+                    // 國際化 驗證簡體中文 
+                    String simpleChineseName = MethodUtils.getDataBySerial(model, NAME,"");
+                    if (StringUtils.isBlank(simpleChineseName)) {
+                      return this.buildError("msg", MessageSourceUtil.getMessage(KEY, MESSAGE), RequestStatusEnum.FAIL_FIELD);
+                    }
+            }
+            */
+           
+            this.${_.camelCase(projectName)}Service.saveMultiple(listData);
+            return this.buildSuccess();
+          } catch (Exception exp) {
+            logger.error(MessageSourceUtil.getMessage(KEY2, MSG2), exp);
+            return this.buildError("msg", MessageSourceUtil.getMessage(KEY2, MSG2), RequestStatusEnum.FAIL_FIELD);
           }
           
-          @Autowired
-          private StatCommonService statCommonService;
+        }
+        /**
+         * 批量修改
+         * @param listData
+         * @return
+         */
+        @CSRFToken
+        @RequestMapping(value = "/updateMultiple", method = RequestMethod.POST)
+        @ResponseBody
+        public Object updateMultiple(@RequestBody List<${UpperProjectName}> listData) {
+          try {
+            /*
+            for (${UpperProjectName} model : listData) {
+                    // 國際化 當前語種
+                    String localeSerial= InvocationInfoProxy.getParameter("locale_serial");
+                    String loacleName = MethodUtils.getDataBySerial(model, NAME,localeSerial);
+                    if (StringUtils.isBlank(loacleName)) {
+                      return this.buildError("msg", MessageSourceUtil.getMessage(KEY, MESSAGE), RequestStatusEnum.FAIL_FIELD);
+                    }
+                    // 國際化 驗證默認語種
+                    String defaultSerial= InvocationInfoProxy.getParameter("default_serial");
+                    String defaultName = MethodUtils.getDataBySerial(model, NAME,defaultSerial);
+                    if (StringUtils.isBlank(defaultName)) {
+                      return this.buildError("msg", MessageSourceUtil.getMessage(KEY, MESSAGE), RequestStatusEnum.FAIL_FIELD);
+                    }
+                    // 國際化 驗證簡體中文
+                    String simpleChineseName = MethodUtils.getDataBySerial(model, NAME,"");
+                    if (StringUtils.isBlank(simpleChineseName)) {
+                      return this.buildError("msg", MessageSourceUtil.getMessage(KEY, MESSAGE), RequestStatusEnum.FAIL_FIELD);
+                    }
+            }
+            */
+            this.${_.camelCase(projectName)}Service.updateMultiple(listData);
+            return this.buildSuccess();
+          } catch (Exception exp) {
+            logger.error(MessageSourceUtil.getMessage(KEY3, MSG3), exp);
+            return this.buildError("msg", MessageSourceUtil.getMessage(KEY3, MSG3), RequestStatusEnum.FAIL_FIELD);
+          }
           
-          private static final String MODELCODE = "${UpperProjectName}";
-          /**
-           * 添加
-           * @param entity
-           * @return
-           */
-          @CSRFToken
-          @RequestMapping(value = "/insertSelective", method = RequestMethod.POST)
-          @ResponseBody
-          public Object insertSelective(@RequestBody ${UpperProjectName} entity) {
-            try {
-               ${_.camelCase(projectName)}Service.insertSelective(entity);
-              return this.buildSuccess(entity);
-            } catch (Exception exp) {
-              logger.error("exp", exp);
-              return this.buildError("msg", "Error insert database", RequestStatusEnum.FAIL_FIELD);
-            }
-          }
-          /**
-           * 修改
-           * @param entity
-           * @return
-           */
-          @CSRFToken
-          @RequestMapping(value = "/updateSelective", method = RequestMethod.POST)
-          @ResponseBody
-          public Object updateSelective(@RequestBody ${UpperProjectName} entity) {
-            try {
-               ${_.camelCase(projectName)}Service.updateSelective(entity);
-              return this.buildSuccess(entity);
-            } catch (Exception exp) {
-              logger.error("exp", exp);
-              return this.buildError("msg", "Error update database", RequestStatusEnum.FAIL_FIELD);
-            }
-          } 
-
-
-
-
-          /**
-           * 批量添加
-           * @param listData
-           * @return
-           */
-          @CSRFToken
-          @RequestMapping(value = "/saveMultiple", method = RequestMethod.POST)
-          @ResponseBody
-          public Object saveMultiple(@RequestBody List<${UpperProjectName}> listData) {
-            try {
-              this.${_.camelCase(projectName)}Service.saveMultiple(listData);
-              return this.buildSuccess();
-            } catch (Exception exp) {
-              logger.error("exp", exp);
-              return this.buildError("msg", "Error save database", RequestStatusEnum.FAIL_FIELD);
-            }
-            
-          }
-          /**
-           * 批量修改
-           * @param listData
-           * @return
-           */
-          @CSRFToken
-          @RequestMapping(value = "/updateMultiple", method = RequestMethod.POST)
-          @ResponseBody
-          public Object updateMultiple(@RequestBody List<${UpperProjectName}> listData) {
-            try {
-              this.${_.camelCase(projectName)}Service.updateMultiple(listData);
-              return this.buildSuccess();
-            } catch (Exception exp) {
-              logger.error("exp", exp);
-              return this.buildError("msg", "Error update database", RequestStatusEnum.FAIL_FIELD);
-            }
-            
-          }
-
-
-   
+        }
           
-          /**
-           * 删除
-           * @param listData
-           * @param request
-           * @param response
-           * @return
-           * @throws Exception
-           */
-          @CSRFToken
-          @RequestMapping(value = "/deleteBatch", method = RequestMethod.POST)
-          @ResponseBody
-          public Object deleteBatch(@RequestBody List<${UpperProjectName}> listData, HttpServletRequest request,
-              HttpServletResponse response) throws Exception {
-            this. ${_.camelCase(projectName)}Service.deleteBatch(listData);
+        /**
+         * 刪除
+         * @param listData
+         * @param request
+         * @param response
+         * @return
+         * @throws Exception
+         */
+        @CSRFToken
+        @RequestMapping(value = "/deleteBatch", method = RequestMethod.POST)
+        @ResponseBody
+        public Object deleteBatch(@RequestBody List<${UpperProjectName}> listData, HttpServletRequest request,
+            HttpServletResponse response){
+          try {
+            this.${_.camelCase(projectName)}Service.deleteBatch(listData);
             return super.buildSuccess();
+          } catch (Exception exp) {
+            logger.error(MessageSourceUtil.getMessage(KEY4, MSG4), exp);
+            return this.buildError("msg", MessageSourceUtil.getMessage(KEY4, MSG4), RequestStatusEnum.FAIL_FIELD);
           }
           
-          /**
-           * 多过滤 多排序
-           * @param pageRequest
-           * @param searchMap
-           * @return
-           */
-          @CSRFToken(verify = false)
-          @RequestMapping(value = "/list", method = RequestMethod.POST)
-          @ResponseBody
-          public Object list(PageRequest pageRequest, @RequestBody Map<String, Object> searchMap) {
-            try {
-              SearchParams searchParams = new SearchParams();
-              searchParams.setSearchMap(searchMap);
-                if (pageRequest.getPageSize() == 1) {
-                Integer allCount = Integer.MAX_VALUE-1;
-                pageRequest = new PageRequest(pageRequest.getPageNumber(), allCount, pageRequest.getSort());
-              }
-                Page<Map> page = this.statCommonService.selectFieldsByPage(pageRequest, searchParams, MODELCODE);
-                ${UpperProjectName}EnumService.fillDynamicList( page.getContent());
-                return this.buildSuccess(page);
-            } catch (Exception exp) {
-              logger.error("exp", exp);
-              return this.buildError("msg", "Error querying database", RequestStatusEnum.FAIL_FIELD);
+        }
+        /**
+         * 下載模板
+         * @param request
+         * @param response
+         * @return
+         */
+        @RequestMapping(value = "/excelTemplateDownload", method = { RequestMethod.GET })
+        @ResponseBody
+        public Object excelTemplateDownload(HttpServletRequest request, HttpServletResponse response) {
+          String name = "${UpperProjectName}";
+          try {
+            ExcelExportImportor.downloadExcelTemplate(response, getImportHeadInfo(), name, name);
+          } catch (Exception e) {
+            logger.error(MessageSourceUtil.getMessage(KEY5, MSG5), e);
+            return this.buildError("msg", MessageSourceUtil.getMessage(KEY5, MSG5), RequestStatusEnum.FAIL_FIELD);
+          }
+          return super.buildSuccess(MessageSourceUtil.getMessage(KEY6, MSG6));
+        }
+        
+        private static Map<String, String> getImportHeadInfo() {
+          Map<String, String> importMap = new HashMap<>();
+      `
+
+
+        tableSchema.map((item,i) => {
+            const columnName = _.get(item,"columnName");
+            const index = (i < 10) ? '0'+i : i;
+            result+=`importMap.put("${columnName}", MessageSourceUtil.getMessage("ja.all.entity1.000${index}", "XXXXX"));`;
+        })
+
+        
+          
+         result += `
+          return importMap;
+        }
+        /**
+         * 導入excel
+         * @param request
+         * @param file
+         * @return
+         */
+        @RequestMapping(value = "/toImportExcel", method = RequestMethod.POST)
+        @ResponseBody
+        public Object importExcel(HttpServletRequest request,@RequestParam(value = "file", required = false) MultipartFile file) {
+          try {
+            List<${UpperProjectName}> list = new ArrayList<${UpperProjectName}>();
+            String multName = file.getOriginalFilename().toString();
+            String multTypeName = multName.substring(multName.lastIndexOf(".") + 1, multName.length());
+            if (!"xlsx".equals(multTypeName)&& !"xls".equals(multTypeName)) {
+              Log.error(MessageSourceUtil.getMessage(KEY7, MSG7));
+              return this.buildError("msg", MessageSourceUtil.getMessage(KEY7, MSG7), RequestStatusEnum.FAIL_FIELD);
             }
+            list = ExcelExportImportor.loadExcel(file.getInputStream(), getImportHeadInfo(),${UpperProjectName}.class);
+            if (list == null || list.size() == 0) {
+              Log.error(MessageSourceUtil.getMessage(KEY8, MSG8));
+              return this.buildError("msg", MessageSourceUtil.getMessage(KEY7, MSG7), RequestStatusEnum.FAIL_FIELD);
+            }
+            ${_.camelCase(projectName)}Service.saveBatch(list);
+          } catch (Exception e) {
+            logger.error(MessageSourceUtil.getMessage(KEY9, MSG9), e);
+            return this.buildError("msg", MessageSourceUtil.getMessage(KEY5, MSG5), RequestStatusEnum.FAIL_FIELD);
+          }
+          return super.buildSuccess(MessageSourceUtil.getMessage(KEY10, MSG10));
+        }
+        
+        /**
+         * 多過濾 多排序
+         * @param pageRequest
+         * @param searchMap
+         * @return
+         */
+        @CSRFToken(verify = false)
+        @RequestMapping(value = "/list", method = RequestMethod.POST)
+        @ResponseBody
+        public Object list(PageRequest pageRequest, @RequestBody Map<String, Object> searchMap) {
+          try {
+            SearchParams searchParams = new SearchParams();
+            searchParams.setSearchMap(searchMap);
+              if (pageRequest.getPageSize() == 1) {
+              Integer allCount = Integer.MAX_VALUE-1;
+              pageRequest = new PageRequest(pageRequest.getPageNumber(), allCount, pageRequest.getSort());
+            }
+              Page<Map> page = this.statCommonService.selectFieldsByPage(pageRequest, searchParams, MODELCODE);
+              // ${UpperProjectName}EnumService.fillDynamicList( page.getContent());
+              return this.buildSuccess(page);
+          } catch (Exception exp) {
+            logger.error(MessageSourceUtil.getMessage(KEY1, MSG1), exp);
+            return this.buildError("msg", MessageSourceUtil.getMessage(KEY1, MSG1), RequestStatusEnum.FAIL_FIELD);
           }
         }
-`;
+      }
+
+
+
+
+         
+      `;
 
 
 
@@ -225,7 +347,7 @@ export const genDao = _state => {
 
    result+= `
       package ${_.toLower(packageName)}.${_.toLower(projectName)}.dao;
-      import com.yonyou.iuap.${_.toLower(projectName)}.entity.${_.upperFirst(_.camelCase(projectName))};
+      import ${_.toLower(packageName)}.${_.toLower(projectName)}.entity.${_.upperFirst(_.camelCase(projectName))};
       import com.yonyou.iuap.baseservice.persistence.mybatis.mapper.GenericExMapper;
       import com.yonyou.iuap.mybatis.anotation.MyBatisRepository;
       @MyBatisRepository
@@ -359,84 +481,89 @@ export const genService = _state => {
 
 
    result+= `  
-      package ${_.toLower(packageName)}.${_.toLower(projectName)}.service;
+   package ${_.toLower(packageName)}.${_.toLower(projectName)}.service;
 
-      import static com.yonyou.iuap.baseservice.intg.support.ServiceFeature.BPM;
-      import static com.yonyou.iuap.baseservice.intg.support.ServiceFeature.LOGICAL_DEL;
-      import static com.yonyou.iuap.baseservice.intg.support.ServiceFeature.MULTI_TENANT;
-      import static com.yonyou.iuap.baseservice.intg.support.ServiceFeature.REFERENCE;
-      import static com.yonyou.iuap.baseservice.intg.support.ServiceFeature.REMOTE_REFERENCE;
 
-      import java.util.Date;
-      import java.util.List;
+import static com.yonyou.iuap.baseservice.intg.support.ServiceFeature.BPM;
+import static com.yonyou.iuap.baseservice.intg.support.ServiceFeature.LOGICAL_DEL;
+import static com.yonyou.iuap.baseservice.intg.support.ServiceFeature.MULTI_TENANT;
+import static com.yonyou.iuap.baseservice.intg.support.ServiceFeature.REFERENCE;
+import static com.yonyou.iuap.baseservice.intg.support.ServiceFeature.REMOTE_REFERENCE;
 
-      import org.springframework.beans.factory.annotation.Autowired;
-      import org.springframework.stereotype.Service;
+import java.util.Date;
+import java.util.List;
 
-      import com.yonyou.iuap.${_.toLower(projectName)}.dao.${UpperProjectName}Mapper;
-      import com.yonyou.iuap.${_.toLower(projectName)}.entity.${UpperProjectName};
-      import com.yonyou.iuap.baseservice.intg.service.GenericIntegrateService;
-      import com.yonyou.iuap.baseservice.intg.support.ServiceFeature;
-      import com.yonyou.uap.busilog.annotation.LogConfig;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-      import cn.hutool.core.date.DateUtil;
+import com.yonyou.iuap.baseservice.intg.service.GenericIntegrateService;
+import com.yonyou.iuap.baseservice.intg.support.ServiceFeature;
+import com.yonyou.uap.busilog.annotation.LogConfig;
 
-      @Service
+import cn.hutool.core.date.DateUtil;
 
-      /**
-       * ${UpperProjectName} CRUD 核心服务,提供逻辑删除/乐观锁
-       */
-      public class ${UpperProjectName}Service extends GenericIntegrateService<${UpperProjectName}> {
 
-        private ${UpperProjectName}Mapper ${_.camelCase(projectName)}Mapper;
+import ${_.toLower(packageName)}.${_.toLower(projectName)}.dao.${UpperProjectName}Mapper;
+import ${_.toLower(packageName)}.${_.toLower(projectName)}.entity.${UpperProjectName};
 
-        @Autowired
-        public void set${UpperProjectName}Mapper(${UpperProjectName}Mapper ${_.camelCase(projectName)}Mapper) {
-          this.${_.camelCase(projectName)}Mapper = ${_.camelCase(projectName)}Mapper;
-          super.setGenericMapper(${_.camelCase(projectName)}Mapper);
-        }
+/**
+ * ${UpperProjectName} CRUD 核心服務,提供邏輯刪除/樂觀鎖
+ */
 
-        /**
-         * @CAU 可插拔设计
-         * @return 向父类 GenericIntegrateService 提供可插拔的特性声明
-         */
-        @Override
-        protected ServiceFeature[] getFeats() {
-          return new ServiceFeature[] { REFERENCE, BPM, MULTI_TENANT, LOGICAL_DEL,REMOTE_REFERENCE };
-        }
-        
-        private static final String DATEFORMAT = "yyyy-MM-dd HH:mm:ss";
-        
-        @Override
-        @LogConfig(busiCode = "${_.camelCase(projectName)}_insertSelective", busiName = "${_.camelCase(projectName)}", operation = "${_.camelCase(projectName)}保存", templateId = "${_.camelCase(projectName)}_insertSelective")
-        public ${UpperProjectName} insertSelective(${UpperProjectName} entity) { 
-          return super.insertSelective(entity);
-        }
 
-        @Override
-        @LogConfig(busiCode = "${_.camelCase(projectName)}_updateSelective", busiName = "${_.camelCase(projectName)}", operation = "${_.camelCase(projectName)}修改", templateId = "${_.camelCase(projectName)}_updateSelective")
-        public ${UpperProjectName} updateSelective(${UpperProjectName} entity) {
-          return super.updateSelective(entity);
 
-        }
-        @LogConfig(busiCode = "${_.camelCase(projectName)}_saveMultiple", busiName = "${_.camelCase(projectName)}", operation = "${_.camelCase(projectName)}批量添加", templateId = "${_.camelCase(projectName)}_saveMultiple")
-        public void saveMultiple(List<${UpperProjectName}> listData) { 
-          super.saveBatch(listData);
-        }
-        
-        @LogConfig(busiCode = "${_.camelCase(projectName)}_updateMultiple", busiName = "${_.camelCase(projectName)}", operation = "${_.camelCase(projectName)}批量修改", templateId = "${_.camelCase(projectName)}_updateMultiple")
-        public void updateMultiple(List<${UpperProjectName}> listData) {
-          super.saveBatch(listData);
-        }
+@Service
+public class ${UpperProjectName}Service extends GenericIntegrateService<${UpperProjectName}> {
 
-        @Override
-        @LogConfig(busiCode = "${_.camelCase(projectName)}_deleteBatch", busiName = "${_.camelCase(projectName)}", operation = "${_.camelCase(projectName)}删除", templateId = "${_.camelCase(projectName)}_deleteBatch")
-        public int deleteBatch(List<${UpperProjectName}> list) {
-          return super.deleteBatch(list);
-        }
-        
-      }
+  private ${UpperProjectName}Mapper ${_.camelCase(projectName)}Mapper;
 
+  @Autowired
+  public void set${UpperProjectName}Mapper(${UpperProjectName}Mapper ${_.camelCase(projectName)}Mapper) {
+    this.${_.camelCase(projectName)}Mapper = ${_.camelCase(projectName)}Mapper;
+    super.setGenericMapper(${_.camelCase(projectName)}Mapper);
+  }
+
+  /**
+   * @CAU 可插拔設計
+   * @return 向父類 GenericIntegrateService 提供可插拔的特性聲明
+   */
+  @Override
+  protected ServiceFeature[] getFeats() {
+    return new ServiceFeature[] { REFERENCE, BPM, MULTI_TENANT, LOGICAL_DEL,REMOTE_REFERENCE };
+  }
+  
+  private static final String DATEFORMAT = "yyyy-MM-dd HH:mm:ss";
+  
+  @Override
+  @LogConfig(busiCode = "${_.camelCase(projectName)}_insertSelective", busiName = "${_.camelCase(projectName)}", operation = "${_.camelCase(projectName)}保存", templateId = "${_.camelCase(projectName)}_insertSelective")
+  public ${UpperProjectName} insertSelective(${UpperProjectName} entity) { 
+    return super.insertSelective(entity);
+  }
+
+  @Override
+  @LogConfig(busiCode = "${_.camelCase(projectName)}_updateSelective", busiName = "${_.camelCase(projectName)}", operation = "${_.camelCase(projectName)}修改", templateId = "${_.camelCase(projectName)}_updateSelective")
+  public ${UpperProjectName} updateSelective(${UpperProjectName} entity) {
+    return super.updateSelective(entity);
+
+  }
+  @LogConfig(busiCode = "${_.camelCase(projectName)}_saveMultiple", busiName = "${_.camelCase(projectName)}", operation = "${_.camelCase(projectName)}批量添加", templateId = "${_.camelCase(projectName)}_saveMultiple")
+  public void saveMultiple(List<${UpperProjectName}> listData) { 
+    super.saveBatch(listData);
+  }
+  
+  @LogConfig(busiCode = "${_.camelCase(projectName)}_updateMultiple", busiName = "${_.camelCase(projectName)}", operation = "${_.camelCase(projectName)}批量修改", templateId = "${_.camelCase(projectName)}_updateMultiple")
+  public void updateMultiple(List<${UpperProjectName}> listData) {
+    super.saveBatch(listData);
+  }
+
+  @Override
+  @LogConfig(busiCode = "${_.camelCase(projectName)}_deleteBatch", busiName = "${_.camelCase(projectName)}", operation = "${_.camelCase(projectName)}刪除", templateId = "${_.camelCase(projectName)}_deleteBatch")
+  public int deleteBatch(List<${UpperProjectName}> list) {
+    return super.deleteBatch(list);
+  }
+  
+}
+ 
    `;
 
 
@@ -494,19 +621,19 @@ export const genEntity = _state => {
       import javax.persistence.Table;
       import javax.persistence.Transient;
 
-      import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-      import com.yonyou.iuap.baseservice.entity.AbsDrModel;
-      import com.yonyou.iuap.baseservice.entity.annotation.Associative;
-      import com.yonyou.iuap.baseservice.entity.annotation.Reference;
-      import com.yonyou.iuap.baseservice.support.condition.Condition;
-      import com.yonyou.iuap.baseservice.support.generator.GeneratedValue;
-      import com.yonyou.iuap.baseservice.multitenant.entity.MultiTenant;
-      import com.yonyou.iuap.baseservice.support.condition.Match; 
+      import com.fasterxml.jackson.annotation.JsonIgnoreProperties; 
+      import com.yonyou.iuap.baseservice.bpm.entity.AbsBpmModel;
       import com.yonyou.iuap.baseservice.entity.annotation.CodingEntity;
       import com.yonyou.iuap.baseservice.entity.annotation.CodingField;
-      import com.yonyou.iuap.baseservice.bpm.entity.AbsBpmModel;
+      import com.yonyou.iuap.baseservice.entity.annotation.Reference;
+      import com.yonyou.iuap.baseservice.multitenant.entity.MultiTenant;
+      import com.yonyou.iuap.baseservice.print.entity.Printable;
       import com.yonyou.iuap.baseservice.statistics.support.StatFunctions;
       import com.yonyou.iuap.baseservice.statistics.support.StatisticsField;
+      import com.yonyou.iuap.baseservice.support.condition.Condition;
+      import com.yonyou.iuap.baseservice.support.condition.Match;
+      import com.yonyou.iuap.baseservice.support.generator.GeneratedValue; 
+
 
       @JsonIgnoreProperties(ignoreUnknown = true)
       @Table(name = "${tableName}") 
@@ -521,6 +648,70 @@ export const genEntity = _state => {
       result += getEntityCell(item);
     }
   });
+
+
+  result += `
+    
+        // 建立者,使用参照
+        @Column(name = "create_user")
+        @Condition
+        @Reference(code = "wbUser", srcProperties = { "refname" }, desProperties = { "createUserName" })
+        private String createUser;
+
+        public String getCreateUser() {
+          return createUser;
+        }
+
+        public void setCreateUser(String createUser) {
+          this.createUser = createUser;
+        }
+        
+        
+        // 建立者 Name
+        @Transient
+        private String createUserName;
+        
+        public String getCreateUserName() {
+          return createUserName;
+        }
+
+        public void setCreateUserName(String createUserName) {
+          this.createUserName = createUserName;
+        }
+        
+        
+
+        // 修改者,使用参照
+        @Column(name = "last_modify_user")
+        @Condition
+        @Reference(code = "wbUser", srcProperties = { "refname" }, desProperties = { "lastModifyUserName" })
+        private String lastModifyUser;
+        
+        public String getLastModifyUser() {
+          return lastModifyUser;
+        }
+
+        public void setLastModifyUser(String lastModifyUser) {
+          this.lastModifyUser = lastModifyUser;
+        }
+        
+        
+        
+
+        // 修改者 Name
+        @Transient
+        private String lastModifyUserName;
+        
+        public String getLastModifyUserName() {
+          return lastModifyUserName;
+        }
+
+        public void setLastModifyUserName(String lastModifyUserName) {
+          this.lastModifyUserName = lastModifyUserName;
+        }
+
+
+  `;
 
   result += "} ";
 
@@ -545,41 +736,46 @@ export const getEntityCell = _item => {
   const colNameUpperCamel = _.upperFirst(_.camelCase(colName));
   const type = _item.type;
 
-  if (_item.at_Id) {
+  if (_item.at_Id || _item.columnName == "ID") {
 
-    cell += ` @StatisticsField(functions = { StatFunctions.count })
-          protected String ${colNameCamel};
+    cell += ` 
+          @Id
+          @GeneratedValue
+          @Condition
+          @StatisticsField(functions = { StatFunctions.count })
+          protected String id; 
 
           @Override
           public String getId() {
-            return ${colNameCamel};
+          return id;
           }
 
           @Override
-          public void set${colNameUpperCamel}(Serializable id) {
-            this.${colNameCamel} = id.toString();
-            super.id = id;
+          public void setId(Serializable id) {
+          this.id = id.toString();
+          super.id = id;
           }
 
-          public void set${colNameUpperCamel}(String id) {
-            this.${colNameCamel} = id;
+          public void setId(String id) {
+          this.id = id;
           }
 
     `;
   } else if (_item.columnName == "TENANT_ID") {
     cell += `
       
-      @Condition
-      @Column(name = "TENANT_ID")
-      private String tenantid;
+        // TENANT ID
+        @Column(name = "TENANT_ID")
+        @Condition(match = Match.EQ)
+        private String tenantid;
 
-      public String getTenantid() {
-        return this.tenantid;
-      }
+        public String getTenantid() {
+          return this.tenantid;
+        }
 
-      public void setTenantid(String tenantid) {
-        this.tenantid = tenantid;
-      }
+        public void setTenantid(String tenantid) {
+          this.tenantid = tenantid;
+        }
 
       `;
   } else if (_item.columnName == "BPM_STATE") {
@@ -653,23 +849,20 @@ export const genXML = _state => {
 
   let xml = ""; 
 
-  xml += `<?xml version="1.0" encoding="UTF-8"?>
+  xml += `<?xml version="1.0" encoding="UTF-8" ?>
+        <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
         <mapper namespace="${packageName}.${lowerProjectName}.dao.${_.upperFirst(_.camelCase(projectName))}Mapper">
-        <resultMap id="BaseResultMap" type="${packageName}.${_.toLower(projectName)}.entity.${_.upperFirst(_.camelCase(projectName))}">
+
+        <resultMap id="BaseResultMap" type="${packageName}.${lowerProjectName}.entity.${_.upperFirst(_.camelCase(projectName))}">
+
 
    `;
 
   tableSchema.map(item => {
-    if (item.at_Id) {
-      xml += `<id column="${item.columnName}" jdbcType="${map.get(
-        item.type
-      )}" property="${_.camelCase(item.columnName)}" /> \n`;
-    } else if (item.columnName == "TENANT_ID") {
+     if (item.columnName == "TENANT_ID") {
       xml += `<result column="TENANT_ID" jdbcType="VARCHAR" property="tenantid" />`;
     } else {
-      xml += ` <result column="${item.columnName}" jdbcType="${map.get(
-        item.type
-      )}" property="${_.camelCase(item.columnName)}" /> \n`;
+      xml += ` <result column="${item.columnName}" jdbcType="${map.get(item.type)}" property="${_.camelCase(item.columnName)}" /> \n`;
     }
   });
 
@@ -680,6 +873,8 @@ export const genXML = _state => {
   `;
 
   xml += `
+
+    <!--  
     <select id="selectAllByPage" resultMap="BaseResultMap">
     SELECT t.* FROM ${tableName} t WHERE 1 =1 and t.dr=0
       <if test="condition != null">
@@ -715,6 +910,7 @@ export const genXML = _state => {
           </if>
         </if>
       </select>
+      -->
     </mapper>
   `;
 
@@ -741,9 +937,12 @@ export const formateConfigParam = _data => {
 
   let map = new Map();
 
-  map.set("VAR", "String");
-  map.set("DEC", "Double");
-  map.set("INT", "Integer");
+  map.set("VAR", "String");//VARCHAR
+  map.set("DEC", "Double");//DECIMAL
+  map.set("INT", "Integer");//INT
+  map.set("NVA", "String");//NVARCHAR
+  map.set("CHA", "String");//CHAR
+ 
 
   const tableSchemaArray = formatTableSchemaToArray(tableSchema);
 
@@ -759,7 +958,7 @@ export const formateConfigParam = _data => {
   for (let i = 0; i < tableSchemaArray.length; i += 2) {
     let obj = {};
     obj.columnName = tableSchemaArray[i];
-    obj.type = map.get(_.toUpper(tableSchemaArray[i + 1]).substring(0, 3));
+    obj.type = map.get(_.replace(tableSchemaArray[i + 1], 'TYPE_', '').trim().substring(0, 3)) ? map.get(_.replace(tableSchemaArray[i + 1], 'TYPE_', '').trim().substring(0, 3)) : 'String';
     obj.key = tableSchemaArray[i];
 
     obj = {

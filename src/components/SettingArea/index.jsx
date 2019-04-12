@@ -21,7 +21,8 @@ class SettingArea extends Component {
   handleSubmit = e => {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
-      if (!err) {   
+      if (!err) {    
+        values.tableSchema = _.toUpper(values.tableSchema)
         this.props.setSettingConfig(values);
       }
     });
