@@ -30,12 +30,15 @@ SELECT UPPER(' ['+ C.NAME+'] ') AS 'COLUMN_NAME',
        UPPER(' ['+T.NAME+'] ,') AS 'TYPE'
 FROM SYS.COLUMNS C
 LEFT JOIN
-  (
-	SELECT A.NAME,
+  (SELECT A.NAME,
           A.SYSTEM_TYPE_ID
-	FROM SYS.TYPES A
-	WHERE A.NAME <> 'SYSNAME' 
-  )T ON T.SYSTEM_TYPE_ID = C.SYSTEM_TYPE_ID
+   FROM SYS.TYPES A
+   WHERE A.NAME IN ('VARCHAR',
+                    'DECIMAL',
+                    'CHAR',
+                    'INT',
+                    'NVARCHAR',
+                    'BIT') )T ON T.SYSTEM_TYPE_ID = C.SYSTEM_TYPE_ID 
 WHERE C.OBJECT_ID = OBJECT_ID('YOUR-TABLE-NAME')
 ```
 

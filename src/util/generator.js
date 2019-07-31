@@ -1,7 +1,7 @@
 import * as _ from "lodash";
 import * as beautify from "js-beautify";
 import * as XmlBeautify from "xml-beautify";
-import * as moment from 'moment'; 
+import * as moment from "moment";
 
 //ignore entity colunm
 export const ignoreColumnName = [
@@ -13,25 +13,16 @@ export const ignoreColumnName = [
   "DR"
 ];
 
-
-
-
 //Generate COntroller
 export const genController = _state => {
+  const { tableSchema, packageName, projectName, tableName } = _state;
+  let result = "";
 
-   const { tableSchema, packageName, projectName, tableName } = _state;
-   let result = ""; 
+  const UpperTableName = _.upperFirst(_.camelCase(tableName));
+  const UpperProjectName = _.upperFirst(_.camelCase(projectName));
+  const timestamp = moment().format("YYYY/MM/DD  HH:mm:ss");
 
-
-   const UpperTableName = _.upperFirst(_.camelCase(tableName)); 
-   const UpperProjectName = _.upperFirst(_.camelCase(projectName));
-   const timestamp = moment().format('YYYY/MM/DD  HH:mm:ss');
-
-
-
-
-
-   result += `
+  result += `
  
        package ${_.toLower(packageName)}.${_.toLower(projectName)}.controller;
 
@@ -59,8 +50,12 @@ export const genController = _state => {
       import org.springframework.web.multipart.MultipartFile;
 
       import com.yonyou.iuap.CSRFToken;
-      import ${_.toLower(packageName)}.${_.toLower(projectName)}.entity.${UpperProjectName}; 
-      import ${_.toLower(packageName)}.${_.toLower(projectName)}.service.${UpperProjectName}Service;
+      import ${_.toLower(packageName)}.${_.toLower(
+    projectName
+  )}.entity.${UpperProjectName}; 
+      import ${_.toLower(packageName)}.${_.toLower(
+    projectName
+  )}.service.${UpperProjectName}Service;
       import com.yonyou.iuap.base.web.BaseController;
       import com.yonyou.iuap.baseservice.statistics.service.StatCommonService;
       import com.yonyou.iuap.common.utils.ExcelExportImportor;
@@ -111,8 +106,12 @@ export const genController = _state => {
         private ${UpperProjectName}Service ${_.camelCase(projectName)}Service;
 
         @Autowired
-        public void set${UpperProjectName}Service(${UpperProjectName}Service ${_.camelCase(projectName)}Service) {
-          this.${_.camelCase(projectName)}Service = ${_.camelCase(projectName)}Service;
+        public void set${UpperProjectName}Service(${UpperProjectName}Service ${_.camelCase(
+    projectName
+  )}Service) {
+          this.${_.camelCase(projectName)}Service = ${_.camelCase(
+    projectName
+  )}Service;
         }
         
         @Autowired
@@ -244,18 +243,15 @@ export const genController = _state => {
         
         private static Map<String, String> getImportHeadInfo() {
           Map<String, String> importMap = new HashMap<>();
-      `
+      `;
 
+  tableSchema.map((item, i) => {
+    const columnName = _.get(item, "columnName");
+    const index = i < 10 ? "0" + i : i;
+    result += `importMap.put("${columnName}", MessageSourceUtil.getMessage("ja.all.entity1.000${index}", "XXXXX"));`;
+  });
 
-        tableSchema.map((item,i) => {
-            const columnName = _.get(item,"columnName");
-            const index = (i < 10) ? '0'+i : i;
-            result+=`importMap.put("${columnName}", MessageSourceUtil.getMessage("ja.all.entity1.000${index}", "XXXXX"));`;
-        })
-
-        
-          
-         result += `
+  result += `
           return importMap;
         }
         /**
@@ -321,65 +317,54 @@ export const genController = _state => {
          
       `;
 
+  const formattedController = beautify.js_beautify(result);
 
-
-
-    const formattedController = beautify.js_beautify(result);
-
-    return formattedController;
-
-
-
-
-
-  
-}
-
-
-
+  return formattedController;
+};
 
 //Generate Dao
 export const genDao = _state => {
-   const { tableSchema, packageName, projectName, tableName } = _state;
-   let result = "";
-   const className = _.upperFirst(_.camelCase(tableName));
+  const { tableSchema, packageName, projectName, tableName } = _state;
+  let result = "";
+  const className = _.upperFirst(_.camelCase(tableName));
 
-
-   result+= `
+  result += `
       package ${_.toLower(packageName)}.${_.toLower(projectName)}.dao;
-      import ${_.toLower(packageName)}.${_.toLower(projectName)}.entity.${_.upperFirst(_.camelCase(projectName))};
+      import ${_.toLower(packageName)}.${_.toLower(
+    projectName
+  )}.entity.${_.upperFirst(_.camelCase(projectName))};
       import com.yonyou.iuap.baseservice.persistence.mybatis.mapper.GenericExMapper;
       import com.yonyou.iuap.mybatis.anotation.MyBatisRepository;
       @MyBatisRepository
-      public interface ${_.upperFirst(_.camelCase(projectName))}Mapper extends GenericExMapper<${_.upperFirst(_.camelCase(projectName))}> {
+      public interface ${_.upperFirst(
+        _.camelCase(projectName)
+      )}Mapper extends GenericExMapper<${_.upperFirst(
+    _.camelCase(projectName)
+  )}> {
   
       }
 
    `;
 
+  const formattedDao = beautify.js_beautify(result);
 
-    const formattedDao = beautify.js_beautify(result);
-
-    return formattedDao;
-
-}
-
-
-
+  return formattedDao;
+};
 
 //Generate EnumService
 export const genEnumService = _state => {
-   const { tableSchema, packageName, projectName, tableName } = _state;
-   let result = "";
-   const UpperTableName = _.upperFirst(_.camelCase(tableName)); 
-   const UpperProjectName = _.upperFirst(_.camelCase(projectName));
+  const { tableSchema, packageName, projectName, tableName } = _state;
+  let result = "";
+  const UpperTableName = _.upperFirst(_.camelCase(tableName));
+  const UpperProjectName = _.upperFirst(_.camelCase(projectName));
 
-
-   result += `
+  result += `
 
    package ${_.toLower(packageName)}.${_.toLower(projectName)}.service;
 
-  import com.yonyou.iuap.${_.toLower(projectName)}.entity.${_.upperFirst(_.camelCase(projectName))};
+  import com.yonyou.iuap.${_.toLower(projectName)}.entity.${_.upperFirst(
+    _.camelCase(projectName)
+  )};
   import java.util.ArrayList;
   import java.util.HashMap;
   import java.util.List;
@@ -389,7 +374,11 @@ export const genEnumService = _state => {
   import com.yonyou.iuap.mvc.type.SearchParams;
 
   @Service
-  public class ${_.upperFirst(_.camelCase(projectName))}EnumService implements QueryFeatureExtension<${_.upperFirst(_.camelCase(projectName))}> {
+  public class ${_.upperFirst(
+    _.camelCase(projectName)
+  )}EnumService implements QueryFeatureExtension<${_.upperFirst(
+    _.camelCase(projectName)
+  )}> {
     private static Map<String, String> sexMap = new HashMap<String, String>(); 
     private static Map<String, String> monthMap = new HashMap<String, String>(); 
     static {
@@ -427,8 +416,14 @@ export const genEnumService = _state => {
     }
     
     @Override
-    public List<${_.upperFirst(_.camelCase(projectName))}> afterListQuery(List<${_.upperFirst(_.camelCase(projectName))}> list) {
-      List<${_.upperFirst(_.camelCase(projectName))}> resultList = new ArrayList<${_.upperFirst(_.camelCase(projectName))}>();
+    public List<${_.upperFirst(
+      _.camelCase(projectName)
+    )}> afterListQuery(List<${_.upperFirst(_.camelCase(projectName))}> list) {
+      List<${_.upperFirst(
+        _.camelCase(projectName)
+      )}> resultList = new ArrayList<${_.upperFirst(
+    _.camelCase(projectName)
+  )}>();
       for (${_.upperFirst(_.camelCase(projectName))} entity : list) {
         /*
         if (entity.getSex() != null) {
@@ -460,27 +455,19 @@ export const genEnumService = _state => {
 
    `;
 
+  const formattedEnumServie = beautify.js_beautify(result);
 
-   const formattedEnumServie = beautify.js_beautify(result);
-
-   return formattedEnumServie;
-
-
-
-}
-
-
-
+  return formattedEnumServie;
+};
 
 //Generate Service
 export const genService = _state => {
-   const { tableSchema, packageName, projectName, tableName } = _state;
-   let result = "";
-   const UpperTableName = _.upperFirst(_.camelCase(tableName)); 
-   const UpperProjectName = _.upperFirst(_.camelCase(projectName));
+  const { tableSchema, packageName, projectName, tableName } = _state;
+  let result = "";
+  const UpperTableName = _.upperFirst(_.camelCase(tableName));
+  const UpperProjectName = _.upperFirst(_.camelCase(projectName));
 
-
-   result+= `  
+  result += `  
    package ${_.toLower(packageName)}.${_.toLower(projectName)}.service;
 
 
@@ -503,8 +490,12 @@ import com.yonyou.uap.busilog.annotation.LogConfig;
 import cn.hutool.core.date.DateUtil;
 
 
-import ${_.toLower(packageName)}.${_.toLower(projectName)}.dao.${UpperProjectName}Mapper;
-import ${_.toLower(packageName)}.${_.toLower(projectName)}.entity.${UpperProjectName};
+import ${_.toLower(packageName)}.${_.toLower(
+    projectName
+  )}.dao.${UpperProjectName}Mapper;
+import ${_.toLower(packageName)}.${_.toLower(
+    projectName
+  )}.entity.${UpperProjectName};
 
 /**
  * ${UpperProjectName} CRUD 核心服務,提供邏輯刪除/樂觀鎖
@@ -518,7 +509,9 @@ public class ${UpperProjectName}Service extends GenericIntegrateService<${UpperP
   private ${UpperProjectName}Mapper ${_.camelCase(projectName)}Mapper;
 
   @Autowired
-  public void set${UpperProjectName}Mapper(${UpperProjectName}Mapper ${_.camelCase(projectName)}Mapper) {
+  public void set${UpperProjectName}Mapper(${UpperProjectName}Mapper ${_.camelCase(
+    projectName
+  )}Mapper) {
     this.${_.camelCase(projectName)}Mapper = ${_.camelCase(projectName)}Mapper;
     super.setGenericMapper(${_.camelCase(projectName)}Mapper);
   }
@@ -535,29 +528,59 @@ public class ${UpperProjectName}Service extends GenericIntegrateService<${UpperP
   private static final String DATEFORMAT = "yyyy-MM-dd HH:mm:ss";
   
   @Override
-  @LogConfig(busiCode = "${_.camelCase(projectName)}_insertSelective", busiName = "${_.camelCase(projectName)}", operation = "${_.camelCase(projectName)}保存", templateId = "${_.camelCase(projectName)}_insertSelective")
+  @LogConfig(busiCode = "${_.camelCase(
+    projectName
+  )}_insertSelective", busiName = "${_.camelCase(
+    projectName
+  )}", operation = "${_.camelCase(
+    projectName
+  )}保存", templateId = "${_.camelCase(projectName)}_insertSelective")
   public ${UpperProjectName} insertSelective(${UpperProjectName} entity) { 
     return super.insertSelective(entity);
   }
 
   @Override
-  @LogConfig(busiCode = "${_.camelCase(projectName)}_updateSelective", busiName = "${_.camelCase(projectName)}", operation = "${_.camelCase(projectName)}修改", templateId = "${_.camelCase(projectName)}_updateSelective")
+  @LogConfig(busiCode = "${_.camelCase(
+    projectName
+  )}_updateSelective", busiName = "${_.camelCase(
+    projectName
+  )}", operation = "${_.camelCase(
+    projectName
+  )}修改", templateId = "${_.camelCase(projectName)}_updateSelective")
   public ${UpperProjectName} updateSelective(${UpperProjectName} entity) {
     return super.updateSelective(entity);
 
   }
-  @LogConfig(busiCode = "${_.camelCase(projectName)}_saveMultiple", busiName = "${_.camelCase(projectName)}", operation = "${_.camelCase(projectName)}批量添加", templateId = "${_.camelCase(projectName)}_saveMultiple")
+  @LogConfig(busiCode = "${_.camelCase(
+    projectName
+  )}_saveMultiple", busiName = "${_.camelCase(
+    projectName
+  )}", operation = "${_.camelCase(
+    projectName
+  )}批量添加", templateId = "${_.camelCase(projectName)}_saveMultiple")
   public void saveMultiple(List<${UpperProjectName}> listData) { 
     super.saveBatch(listData);
   }
   
-  @LogConfig(busiCode = "${_.camelCase(projectName)}_updateMultiple", busiName = "${_.camelCase(projectName)}", operation = "${_.camelCase(projectName)}批量修改", templateId = "${_.camelCase(projectName)}_updateMultiple")
+  @LogConfig(busiCode = "${_.camelCase(
+    projectName
+  )}_updateMultiple", busiName = "${_.camelCase(
+    projectName
+  )}", operation = "${_.camelCase(
+    projectName
+  )}批量修改", templateId = "${_.camelCase(projectName)}_updateMultiple")
   public void updateMultiple(List<${UpperProjectName}> listData) {
     super.saveBatch(listData);
   }
 
   @Override
-  @LogConfig(busiCode = "${_.camelCase(projectName)}_deleteBatch", busiName = "${_.camelCase(projectName)}", operation = "${_.camelCase(projectName)}刪除", templateId = "${_.camelCase(projectName)}_deleteBatch")
+  @LogConfig(busiCode = "${_.camelCase(
+    projectName
+  )}_deleteBatch", busiName = "${_.camelCase(
+    projectName
+  )}", operation = "${_.camelCase(
+    projectName
+  )}刪除", templateId = "${_.camelCase(projectName)}_deleteBatch")
   public int deleteBatch(List<${UpperProjectName}> list) {
     return super.deleteBatch(list);
   }
@@ -566,13 +589,10 @@ public class ${UpperProjectName}Service extends GenericIntegrateService<${UpperP
  
    `;
 
+  const formattedServie = beautify.js_beautify(result);
 
-    const formattedServie = beautify.js_beautify(result);
-
-    return formattedServie;
-
-}
-
+  return formattedServie;
+};
 
 // Generate Entity
 export const genEntity = _state => {
@@ -581,34 +601,28 @@ export const genEntity = _state => {
   const className = _.upperFirst(_.camelCase(tableName));
   let result = "";
 
-  let absMode = 'AbsDrModel';
-  let codingEntity = ''; 
+  let absMode = "AbsDrModel";
+  let codingEntity = "";
 
- 
-
-  tableSchema.map(item => { 
-    if(_.startsWith(item.columnName, 'BPM')){
-      console.log('=== abs bpm mode ===')
-      absMode = 'AbsBpmModel';
-      return ;
-    }  
+  tableSchema.map(item => {
+    if (_.startsWith(item.columnName, "BPM")) {
+      console.log("=== abs bpm mode ===");
+      absMode = "AbsBpmModel";
+      return;
+    }
   });
 
+  console.log("=== tableSchema ===");
+  console.log(tableSchema);
 
-  console.log('=== tableSchema ===')
-  console.log(tableSchema)
-
-  tableSchema.map(item => { 
-    if(_.get(item, 'at_CodingEntity') == true){
-      codingEntity = `@CodingEntity(codingField = "${_.camelCase(item.columnName)}") `;
-      return ;
-    } 
+  tableSchema.map(item => {
+    if (_.get(item, "at_CodingEntity") == true) {
+      codingEntity = `@CodingEntity(codingField = "${_.camelCase(
+        item.columnName
+      )}") `;
+      return;
+    }
   });
-
- 
-
-
-
 
   result += `
       package ${_.toLower(packageName)}.${_.toLower(projectName)}.entity;
@@ -638,7 +652,9 @@ export const genEntity = _state => {
       @JsonIgnoreProperties(ignoreUnknown = true)
       @Table(name = "${tableName}") 
       ${codingEntity}
-      public class ${_.upperFirst(_.camelCase(projectName))} extends ${absMode} implements Serializable, MultiTenant{
+      public class ${_.upperFirst(
+        _.camelCase(projectName)
+      )} extends ${absMode} implements Serializable, MultiTenant{
 
 
     `;
@@ -648,7 +664,6 @@ export const genEntity = _state => {
       result += getEntityCell(item);
     }
   });
-
 
   result += `
     
@@ -717,8 +732,6 @@ export const genEntity = _state => {
 
   const formattedEntity = beautify.js_beautify(result);
 
-
-   
   return formattedEntity;
 };
 
@@ -730,14 +743,12 @@ export const getEntityCell = _item => {
   cell += _item.at_GeneratedValue ? "@GeneratedValue \n " : "";
   cell += _item.at_Condition ? "@Condition(match = Match.EQ) \n" : "";
 
-
   const colName = _item.columnName;
   const colNameCamel = _.camelCase(colName);
   const colNameUpperCamel = _.upperFirst(_.camelCase(colName));
   const type = _item.type;
 
   if (_item.at_Id || _item.columnName == "ID") {
-
     cell += ` 
           @Id
           @GeneratedValue
@@ -801,10 +812,12 @@ export const getEntityCell = _item => {
 
       `;
   } else {
-    cell += `@Column(name = "${colName}") \n`
+    cell += `@Column(name = "${colName}") \n`;
     cell += _item.at_CodingEntity ? ` @CodingField(code = "XXXXX") ` : "";
-    cell += _item.at_Reference ? ` @Reference(code = "XXXXX", srcProperties = { "XXXXX" }, desProperties = { "XXXXX" }) ` : "";
-    cell+=`
+    cell += _item.at_Reference
+      ? ` @Reference(code = "XXXXX", srcProperties = { "XXXXX" }, desProperties = { "XXXXX" }) `
+      : "";
+    cell += `
       private ${type} ${colNameCamel};  
 
       public void set${colNameUpperCamel}(${type} ${colNameCamel}) {
@@ -839,30 +852,37 @@ export const genXML = _state => {
 
   const lowerProjectName = _.toLower(_.camelCase(projectName));
   const upperCamelProjectname = _.upperFirst(_.camelCase(projectName));
-  const upperCamelTableName = _.upperFirst(_.camelCase(tableName)); 
+  const upperCamelTableName = _.upperFirst(_.camelCase(tableName));
 
   let map = new Map();
 
   map.set("String", "VARCHAR");
   map.set("Double", "DECIMAL");
   map.set("Integer", "INTEGER");
+  map.set("Boolean", "BOOLEAN");
 
-  let xml = ""; 
+  let xml = "";
 
   xml += `<?xml version="1.0" encoding="UTF-8" ?>
         <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-        <mapper namespace="${packageName}.${lowerProjectName}.dao.${_.upperFirst(_.camelCase(projectName))}Mapper">
+        <mapper namespace="${packageName}.${lowerProjectName}.dao.${_.upperFirst(
+    _.camelCase(projectName)
+  )}Mapper">
 
-        <resultMap id="BaseResultMap" type="${packageName}.${lowerProjectName}.entity.${_.upperFirst(_.camelCase(projectName))}">
+        <resultMap id="BaseResultMap" type="${packageName}.${lowerProjectName}.entity.${_.upperFirst(
+    _.camelCase(projectName)
+  )}">
 
 
    `;
 
   tableSchema.map(item => {
-     if (item.columnName == "TENANT_ID") {
+    if (item.columnName == "TENANT_ID") {
       xml += `<result column="TENANT_ID" jdbcType="VARCHAR" property="tenantid" />`;
     } else {
-      xml += ` <result column="${item.columnName}" jdbcType="${map.get(item.type)}" property="${_.camelCase(item.columnName)}" /> \n`;
+      xml += ` <result column="${item.columnName}" jdbcType="${map.get(
+        item.type
+      )}" property="${_.camelCase(item.columnName)}" /> \n`;
     }
   });
 
@@ -928,21 +948,19 @@ export const formateConfigParam = _data => {
   const projectName = _.upperFirst(_.camelCase(_data.projectName));
   let tableName = _data.tableName;
 
-
-  tableName = _.replace(tableName, '[', '');
-  tableName = _.replace(tableName, ']', '');
-
+  tableName = _.replace(tableName, "[", "");
+  tableName = _.replace(tableName, "]", "");
 
   let tableSchema = _data.tableSchema;
 
   let map = new Map();
 
-  map.set("VAR", "String");//VARCHAR
-  map.set("DEC", "Double");//DECIMAL
-  map.set("INT", "Integer");//INT
-  map.set("NVA", "String");//NVARCHAR
-  map.set("CHA", "String");//CHAR
- 
+  map.set("VAR", "String"); //VARCHAR
+  map.set("DEC", "Double"); //DECIMAL
+  map.set("INT", "Integer"); //INT
+  map.set("NVA", "String"); //NVARCHAR
+  map.set("CHA", "String"); //CHAR
+  map.set("BIT", "Boolean"); //BIT
 
   const tableSchemaArray = formatTableSchemaToArray(tableSchema);
 
@@ -951,14 +969,24 @@ export const formateConfigParam = _data => {
     at_Id: false,
     at_Condition: false,
     at_GeneratedValue: false,
-    at_CodingEntity:false,
-    at_Reference:false
+    at_CodingEntity: false,
+    at_Reference: false
   };
 
   for (let i = 0; i < tableSchemaArray.length; i += 2) {
     let obj = {};
     obj.columnName = tableSchemaArray[i];
-    obj.type = map.get(_.replace(tableSchemaArray[i + 1], 'TYPE_', '').trim().substring(0, 3)) ? map.get(_.replace(tableSchemaArray[i + 1], 'TYPE_', '').trim().substring(0, 3)) : 'String';
+    obj.type = map.get(
+      _.replace(tableSchemaArray[i + 1], "TYPE_", "")
+        .trim()
+        .substring(0, 3)
+    )
+      ? map.get(
+          _.replace(tableSchemaArray[i + 1], "TYPE_", "")
+            .trim()
+            .substring(0, 3)
+        )
+      : "String";
     obj.key = tableSchemaArray[i];
 
     obj = {
