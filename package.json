@@ -9,7 +9,7 @@
     "lodash": "^4.17.11",
     "moment": "^2.24.0",
     "prism-react-renderer": "^0.1.5",
-    "prismjs": "^1.15.0",
+    "prismjs": "^1.21.0",
     "react": "^16.7.0",
     "react-dom": "^16.7.0",
     "react-scripts": "2.1.3",
