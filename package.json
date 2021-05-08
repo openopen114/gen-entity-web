@@ -6,7 +6,7 @@
   "dependencies": {
     "antd": "^3.13.0",
     "js-beautify": "^1.8.9",
-    "lodash": "^4.17.11",
+    "lodash": "^4.17.21",
     "moment": "^2.24.0",
     "prism-react-renderer": "^0.1.5",
     "prismjs": "^1.15.0",
